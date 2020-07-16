@@ -112,3 +112,57 @@ function momsSpagetti(lyrics) {
 }
 
 // REFACTORED VERSION HERE //
+//
+// An array of promises is created, with each element
+// consisting of a section of song lyrics. 
+// After all lyric sections are retrieved, the complete
+// song lyrics are returned. 
+// 
+// If these lyrics were being accessed over the Internet, for example,
+// a promise-based solution would allow the lyrics to be accessed
+// independently of each other, at the same time. 
+// The array of promises ensures that
+// all the lyrics are displayed at the same time and in order,
+// even if some are initially returned sooner than others.
+//
+// In the original code, the refrainRepeat property was unused,
+// so in this version it is used.
+//
+// Additionally, ES6 recommends the use of let rather than var
+// for declaring variables. 
+
+function getLyricElement(lyricElement) {
+    return new Promise(function(resolve) {
+        resolve(lyricElement);
+    });
+}
+
+function assembleLyrics() {
+    let promises = [];
+    let finalLyrics = lyrics.intro;
+    promises.push(getLyricElement(lyrics.intro));
+    
+    for(i = 0; i < lyrics.choruses.length; i += 1) {
+        promises.push(getLyricElement(lyrics.choruses[i].chorus));
+        for(j = 0; j < lyrics.refrainRepeat; j += 1) {
+            promises.push(getLyricElement(lyrics.refrain));
+        }
+    }
+    promises.push(getLyricElement(lyrics.ending));
+
+    Promise.all(promises)
+        .then(function(results) {
+            for(i = 0; i < results.length; i += 1) {
+                finalLyrics += results[i];
+            }
+            console.log(finalLyrics);
+            return finalLyrics;
+        })
+        .catch(function(error) {
+            console.error("There was an error \
+                retrieving the lyrics", error.message);
+        });
+
+}
+
+assembleLyrics();

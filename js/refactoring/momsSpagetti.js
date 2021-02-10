@@ -85,7 +85,7 @@ const lyrics = {
 // REFACTOR THIS CODE //
 // This code assembles the above object into a string with the lyrics for Eminem's "lose Yourself". 
 // The result should look like https://www.google.ca/search?rlz=1C5CHFA_enCA764CA764&ei=4iFbWs_VG43CjwOJ465Q&q=lose+yourself+lyrics&oq=lose+yoursle&gs_l=psy-ab.3.0.0i10k1l10.6780.11717.0.12640.28.24.0.2.2.0.275.2686.4j13j2.20.0....0...1c.1.64.psy-ab..15.12.1403.0..0j0i67k1j0i131k1j0i131i67k1.234.XSGvMUvV4XY
-function momsSpagetti(lyrics) {
+function momsSpaghetti(lyrics) {
 
     var loseYourself;
     var internalCounter = 0
@@ -112,3 +112,82 @@ function momsSpagetti(lyrics) {
 }
 
 // REFACTORED VERSION HERE //
+
+// Left comments in the function instead of here for clarity about what I'm referencing.
+// We could do some fun documentation here though. We love to see docs. :D
+
+/**
+ * Takes an object and returns it in the form of the result of a successful Promise.
+ * 
+ * This could have just been a plain old const, but we love a re-usable piece of code!
+ * 
+ * @param {object} resolvedResult - The object to be returned as a successful promise.
+ * 
+ * @returns {Promise} - a successfully resolved promise with the `lyrics` parameter as the result.
+ */
+function returnAsPromise(resolvedResult) {
+    return new Promise((resolve, reject) => {
+        resolve(resolvedResult)
+
+        // A reject, just for fun. ;)
+        // Would never actually hit this.
+        reject(new Error("Something went wrong!"))
+    }) 
+}
+
+/**
+ * Takes an object of lyrics from 2002 and returns them as a string.
+ * 
+ * @param {object} lyrics - The lyrics object to be formatted into a string.
+ *                          Wouldn't actually pass this in if it were a real API call.
+ * 
+ * @returns {Promise} - A promise that resolves into a compiled lyrics string. 
+ */
+function momsSpaghettiRefactored(lyrics) {
+    // Not sure if you wanted each object in lyrics treated like a separate promise; I'm treating
+    // it like one. If there were more I'd probably compiling my own internal lyrics object to 
+    // reference from the results with a Promise.all() and proceeding the same from there.
+
+    // Also returning a Promise from this function so that whatever is using it can wait for the fake API 
+    // to finish if it needs the result.
+    // If this function was just managing the app state we could update it from inside this .then() method. 
+    return returnAsPromise(lyrics)
+        .then(
+            (result) => {
+                // De-structure the lyrics object for clarity and so things are easier to reference.
+                const { intro, choruses, refrain, ending, refrainRepeat } = result
+
+                // Going to work with the lyrics as an array until we actually need it as a string,
+                // so that it's easier to manage and debug.
+
+                // Assembling the middle section using a reducer so we can have immutable arrays and
+                // so we don't need to manually manage an index/iterator. Could have used a for-of
+                // loop if I wasn't also adding refrains as a separate array item (ie: if I was still 
+                // working with this as a raw string, the for-of loop would work).
+                const middle = choruses.reduce((accumlatedChorus, chorusObject) => { 
+                    const { chorus } = chorusObject;
+                    
+                    return [
+                        ...accumlatedChorus, 
+                        chorus, 
+                        // Repeat the refrain X times after each chorus, but without manual iteration.
+                        ...Array(refrainRepeat).fill(refrain)  
+                    ]
+                }, [])
+
+                // All the lyrics. Could just return this + the join in one line, but I like the extra
+                // clarity.
+                const compiledLyrics = [ intro, ...middle, ending ]
+
+                // Was using this to assert that the results are the same, in place of test coverage.
+                // console.log(momsSpaghetti(lyrics) === compiledLyrics.join(''))
+
+                // Return the array we've been working with as a string.
+                return compiledLyrics.join(' ')    
+            },
+            (error) => {
+                // Again, just for fun. We wont actually hit this with out code as-is.
+                return `${error} / An error case that triggers if the promise was rejected.`
+            }
+        )
+}

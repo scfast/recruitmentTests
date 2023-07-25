@@ -1,7 +1,7 @@
 //Task:
 // Create a refactored version of the following code at the bottom of this file using ES6 conventions
-// Also leave a commented section breifly outlining some of the techniques, style choice, and reasons for your refactoring choices
-// The refactored version of this code should be promise based and consider standard linting practices
+// Also leave a commented section briefly outlining some of the techniques, style choices, and reasons for your refactoring choices
+// The refactored version of this code should be using Async/Await and consider standard linting practices and tests
 
 // DO NOT REFACTOR THIS SECTION //
 const lyrics = {
